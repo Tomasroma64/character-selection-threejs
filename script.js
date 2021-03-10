@@ -104,7 +104,7 @@ function init() {
             camera.position.lerp(cameraOffset, animationCurrentFrame / animationDuration)
             animationCurrentFrame += 1;
 
-            document.getElementById("text").innerHTML = animationCurrentFrame;
+
 
             //console.log(animationCurrentFrame)
             //console.log(animationCurrentFrame / animationDuration)
@@ -165,6 +165,10 @@ function init() {
         if (xhr.lengthComputable) {
             const percentComplete = xhr.loaded / xhr.total * 100;
             console.log('model ' + Math.round(percentComplete, 2) + '% downloaded');
+
+            if (percentComplete > 99) {
+                document.getElementById("text").innerHTML = "tomasmaillo";
+            }
         }
     }
 
