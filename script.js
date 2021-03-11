@@ -6,9 +6,6 @@ let container;
 
 let camera, scene, renderer;
 
-let mouseX = 0,
-    mouseY = 0;
-
 let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
 
@@ -18,11 +15,17 @@ let objectsDetails = [{
 }, {
     name: "another one by the same name",
     slogan: "the red light is on purpose "
+}, {
+    name: "another one by the same name",
+    slogan: "the red light is on purpose "
 }];
 
+let objectsToLoad = ["lucas", "lucas2", "characterlowpoly2"]
 let objects = [];
 let currentSelection = 0;
-let avatarSpacing = 10;
+let avatarSpacing = 5;
+
+let finishedLoading = false;
 
 init();
 animate();
@@ -30,21 +33,39 @@ animate();
 
 function init() {
 
-    container = document.createElement('div');
+    container = document.getElementById('canvas');
     document.body.appendChild(container);
 
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
 
+
+    // Handle input
     document.addEventListener('mousedown', onDocumentMouseDown, false);
 
     function onDocumentMouseDown(e) {
-        if (e.clientX > (window.innerWidth / 2)) {
-            changeSelected(1)
-        } else {
-            changeSelected(-1)
+        if (finishedLoading) {
+            if (e.clientX > (window.innerWidth / 2)) {
+                changeSelected(1)
+            } else {
+                changeSelected(-1)
+            }
         }
-
     }
+
+    document.addEventListener("keydown", onDocumentKeyDown, false);
+
+    function onDocumentKeyDown(event) {
+        var keyCode = event.which;
+        switch (keyCode) {
+            case 37:
+                changeSelected(-1);
+                break;
+            case 39:
+                changeSelected(1)
+                break;
+        }
+    }
+
 
 
     // scene
@@ -58,19 +79,30 @@ function init() {
     camera.add(pointLight);
     scene.add(camera);
 
-    // manager
-
-    let rotCount = 0
-    window.setInterval(function() {
-        objects.forEach(object => {
-            object.rotation.set(0, rotCount, 0);
-        });
-        rotCount += 0.01;
-
-        animateCamera();
-    }, 50);
 
 
+    function ready() {
+
+        changeSelected(0)
+
+        finishedLoading = true
+
+        // Rotation
+        let rotCount = 0
+        window.setInterval(() => {
+            objects.forEach(object => {
+                object.rotation.set(0, rotCount, 0);
+            });
+            rotCount += 0.001;
+        }, 1);
+
+
+        window.setInterval(animateCamera, 20)
+
+    }
+
+
+    // Camera animation
     let animationOngoing = false;
     let animationDuration = 50;
     let animationCurrentFrame = 0;
@@ -78,7 +110,6 @@ function init() {
     let cameraOffset;
 
 
-    changeSelected(0)
 
     function changeSelected(direction) {
 
@@ -98,16 +129,10 @@ function init() {
         }
     }
 
-
     function animateCamera() {
         if (animationOngoing) {
             camera.position.lerp(cameraOffset, animationCurrentFrame / animationDuration)
             animationCurrentFrame += 1;
-
-
-
-            //console.log(animationCurrentFrame)
-            //console.log(animationCurrentFrame / animationDuration)
 
             // TODO: Fix this limitation to the animation, last few frames have small change
             if (animationCurrentFrame > (animationDuration / 2)) {
@@ -119,56 +144,34 @@ function init() {
 
 
 
-    function loadModel() {
+    // LOADING MODELS
+    const manager = new THREE.LoadingManager();
 
-        objects[0].traverse(function(child) {
 
-            if (child.isMesh) child.material.map = texture;
-
-        });
-        objects[1].traverse(function(child) {
-
-            if (child.isMesh) child.material.map = texture;
-
-        });
-
-        objects[0].position.x = 0;
-        objects[1].position.x = 10;
-
-        scene.add(objects[0]);
-        scene.add(objects[1]);
-
-        camera.lookAt(objects[currentSelection].position);
-
-    }
-
-    const manager = new THREE.LoadingManager(loadModel);
-
+    // Importing
     manager.onProgress = function(item, loaded, total) {
-
-        console.log(item, loaded, total);
+        console.log(`Loading ${item}. Done: ${loaded}/${total}`);
+        document.getElementById("loading-percent").innerHTML = `${((loaded / total)*100).toFixed(1)}%`
 
     };
 
+    manager.onLoad = function() {
+        console.log('Loading complete!');
+        document.getElementById("loader-arrows").classList.add("hide");
+        document.getElementById("loader-text").classList.add("hide");
 
+        // Everything ready
+        ready();
+        loadModel();
+    };
 
-
-
-    // texture
-
-    const textureLoader = new THREE.TextureLoader(manager);
-    const texture = textureLoader.load('lucas.jpg');
-
-    // model
+    manager.onError = function(url) {
+        console.log('There was an error loading ' + url);
+    };
 
     function onProgress(xhr) {
         if (xhr.lengthComputable) {
-            const percentComplete = xhr.loaded / xhr.total * 100;
-            console.log('model ' + Math.round(percentComplete, 2) + '% downloaded');
-
-            if (percentComplete > 99) {
-                document.getElementById("text").innerHTML = "tomasmaillo";
-            }
+            console.log('model ' + Math.round(xhr.loaded / xhr.total * 100, 2) + '% downloaded');
         }
     }
 
@@ -180,22 +183,51 @@ function init() {
 
     }, onProgress, onError);
 
+    objectsToLoad.forEach(object => {
+        loader.load(`${object}.obj`, function(obj) {
+            objects.push(obj)
 
-    loader.load('lucas2.obj', function(obj) {
-        objects.push(obj)
+        }, onProgress, onError);
+    });
 
-    }, onProgress, onError);
 
-    //
+
+    // Texturing
+    const textureLoader = new THREE.TextureLoader(manager);
+    const texture = textureLoader.load('lucas.jpg');
+
+    function loadModel() {
+
+        objects[2].traverse(function(child) {
+
+            if (child.isMesh) child.material.map = texture;
+
+        });
+        objects[1].traverse(function(child) {
+
+            if (child.isMesh) child.material.map = texture;
+
+        });
+
+        objects[0].scale.set(0.3, 0.3, 0.3);
+        let count = 0;
+        objects.forEach(object => {
+            object.position.x = count * avatarSpacing;
+            scene.add(object)
+            count++;
+        });
+
+
+        camera.lookAt(objects[currentSelection].position);
+
+    }
+
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
-    document.addEventListener('mousemove', onDocumentMouseMove);
-
-    //
 
     window.addEventListener('resize', onWindowResize);
 
@@ -213,31 +245,22 @@ function onWindowResize() {
 
 }
 
-function onDocumentMouseMove(event) {
 
-    mouseX = (event.clientX - windowHalfX) / 2;
-    mouseY = (event.clientY - windowHalfY) / 2;
 
-}
-
-//
+// Rendering
 
 function animate() {
-
     requestAnimationFrame(animate);
     render();
 
 }
 
 function render() {
-
     //camera.position.x += (mouseX - camera.position.x) * .05;
     //camera.position.y += (-mouseY - camera.position.y) * .05;
 
-
     camera.position.y = 1;
     camera.position.z = 3;
-
 
     renderer.render(scene, camera);
 

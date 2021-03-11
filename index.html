@@ -5,16 +5,43 @@
     <title>choose your fighter </title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="https://threejs.org/examples/main.css">
+    <link type="text/css" rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div id="info">
+    <div class="container">
 
-        <a href="https://tomasmaillo.com" id="text" target="_blank" rel="noopener">loading...</a> - Use left and right side of screen to change selection
-        <h1 id="avatar-name"></h1>
-        <p id="avatar-slogan"></p>
+        <div id="canvas"></div>
+
+
+        <div id="info">
+
+            <!--<a href="https://tomasmaillo.com" id="text" target="_blank" rel="noopener"></a> - Use left and right side of screen to change selection-->
+
+            <h1 id="avatar-name"> </h1>
+            <p id="avatar-slogan"> </p>
+
+
+
+            <div>
+                <div id="loader-arrows">
+                    <span style="--delay: 0.1s">↓</span>
+                    <span style="--delay: 0.3s">↓</span>
+                    <span style="--delay: 0.5s">↓</span>
+                    <span style="--delay: 0.7s">↓</span>
+
+                </div>
+
+                <div id="loader-text">
+                    <h3 style="display: block;">loading <span id="loading-percent"></span></h3>
+                </div>
+            </div>
+
+        </div>
+
     </div>
+
+
 
     <script type="module" src="script.js"></script>
 
