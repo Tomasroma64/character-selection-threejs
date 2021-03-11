@@ -83,7 +83,7 @@ function init() {
 
     function ready() {
 
-        changeSelected(0)
+        changeSelected(0); // Must be 0, camera wont move. TODO: make this not a "thing"
 
         finishedLoading = true
 
