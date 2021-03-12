@@ -1,6 +1,7 @@
 import * as THREE from 'https://threejs.org/build/three.module.js';
 
 import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
+import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
 let container;
 
@@ -20,10 +21,10 @@ let objectsDetails = [{
     slogan: "the red light is on purpose "
 }];
 
-let objectsToLoad = ["lucas", "lucas2", "characterlowpoly2"]
+let objectsToLoad = ["Lucas.glb", "paulafix.gltf", "Laura.gltf", "Ning.gltf"]
 let objects = [];
 let currentSelection = 0;
-let avatarSpacing = 5;
+let avatarSpacing = 3;
 
 let finishedLoading = false;
 
@@ -72,10 +73,10 @@ function init() {
 
     scene = new THREE.Scene();
 
-    const ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0xffaaaaa, 0.8);
+    const pointLight = new THREE.PointLight(0xffffff, 5);
     camera.add(pointLight);
     scene.add(camera);
 
@@ -93,7 +94,7 @@ function init() {
             objects.forEach(object => {
                 object.rotation.set(0, rotCount, 0);
             });
-            rotCount += 0.001;
+            rotCount += 0.002;
         }, 1);
 
 
@@ -177,15 +178,17 @@ function init() {
 
     function onError() {}
 
-    const loader = new OBJLoader(manager);
+    /*const loader = new OBJLoader(manager);
     loader.load('lucas.obj', function(obj) {
         objects.push(obj);
 
-    }, onProgress, onError);
+    }, onProgress, onError);*/
 
+    const loader2 = new GLTFLoader(manager);
     objectsToLoad.forEach(object => {
-        loader.load(`${object}.obj`, function(obj) {
-            objects.push(obj)
+        loader2.load(`${object}`, function(gltf) {
+            gltf.scene.name = `${object}`
+            objects.push(gltf.scene)
 
         }, onProgress, onError);
     });
@@ -196,9 +199,20 @@ function init() {
     const textureLoader = new THREE.TextureLoader(manager);
     const texture = textureLoader.load('lucas.jpg');
 
+
+    var newMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+
+
     function loadModel() {
 
-        objects[2].traverse(function(child) {
+        /*objects.forEach(object => {
+            console.log(object)
+            object.traverse((o) => {
+                if (o.isMesh) o.material = newMaterial;
+            });
+        });*/
+
+        /*objects[2].traverse(function(child) {
 
             if (child.isMesh) child.material.map = texture;
 
@@ -207,9 +221,9 @@ function init() {
 
             if (child.isMesh) child.material.map = texture;
 
-        });
+        });*/
 
-        objects[0].scale.set(0.3, 0.3, 0.3);
+        //objects[0].scale.set(0.3, 0.3, 0.3);
         let count = 0;
         objects.forEach(object => {
             object.position.x = count * avatarSpacing;
