@@ -1,3 +1,44 @@
+/* no focus */
+
+*:focus {
+    outline: none;
+}
+
+
+/* no arrows input number */
+
+body {
+    padding: 0;
+    margin: 0;
+    background: #444;
+    font-family: "Roboto Mono", monospace;
+    color: white;
+}
+
+@media only screen and (min-width: 600px) {
+    .overlay {
+        max-width: 700px;
+    }
+    h1,
+    h2,
+    h3 {
+        margin-top: 0.5em;
+        margin-bottom: 0.3em;
+    }
+    .desktop {
+        display: initial !important;
+    }
+    .mobile {
+        display: none !important;
+    }
+}
+
+.transaction {
+    transition: 0.8s;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
 #loader-arrows,
 #loader-text {
     display: flex;
@@ -33,6 +74,49 @@
     position: relative;
     text-align: center;
     color: white;
+}
+
+.top-left {
+    text-align: left;
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    width: 20%;
+}
+
+.top-middle {
+    text-align: right;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.top-right {
+    text-align: right;
+    position: absolute;
+    top: 8px;
+    right: 16px;
+}
+
+.bottom-middle {
+    position: absolute;
+    bottom: 8px;
+    text-align: center;
+    width: 100%;
+}
+
+.bottom-left {
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+}
+
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @keyframes arrows {

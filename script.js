@@ -1,32 +1,22 @@
 import * as THREE from 'https://threejs.org/build/three.module.js';
 
-import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
+// Only GLTF, no OBJ
 import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
 
 let container;
 
 let camera, scene, renderer;
 
-let windowHalfX = window.innerWidth / 2;
-let windowHalfY = window.innerHeight / 2;
+const modelsFolder = "models";
+import models from "./models.js";
 
-let objectsDetails = [{
-    name: "Lucas",
-    slogan: "I'm trying my best"
-}, {
-    name: "another one by the same name",
-    slogan: "the red light is on purpose "
-}, {
-    name: "another one by the same name",
-    slogan: "the red light is on purpose "
-}];
-
-let objectsToLoad = ["Lucas.glb", "paulafix.gltf", "Laura.gltf", "Ning.gltf"]
 let objects = [];
 let currentSelection = 0;
-let avatarSpacing = 3;
+let avatarSpacing = 2;
 
 let finishedLoading = false;
+
+
 
 init();
 animate();
@@ -124,8 +114,11 @@ function init() {
 
             currentSelection += direction
 
-            document.getElementById("avatar-name").innerHTML = objectsDetails[currentSelection].name;
-            document.getElementById("avatar-slogan").innerHTML = objectsDetails[currentSelection].slogan;
+            document.getElementById("avatar-name").innerHTML = models[currentSelection].name;
+            document.getElementById("avatar-slogan").innerHTML = models[currentSelection].description;
+            models[currentSelection].abilities.forEach(abilitie => {
+                document.getElementById("abilities").innerHTML += `<p>${abilitie.name}</p>`
+            });
 
         }
     }
@@ -164,6 +157,7 @@ function init() {
         // Everything ready
         ready();
         loadModel();
+        camera.lookAt(objects[currentSelection].position);
     };
 
     manager.onError = function(url) {
@@ -171,68 +165,41 @@ function init() {
     };
 
     function onProgress(xhr) {
-        if (xhr.lengthComputable) {
+        /*if (xhr.lengthComputable) {
             console.log('model ' + Math.round(xhr.loaded / xhr.total * 100, 2) + '% downloaded');
-        }
+        }*/
     }
 
-    function onError() {}
+    function onError() {
+        console.log("Loading error")
+    }
 
-    /*const loader = new OBJLoader(manager);
-    loader.load('lucas.obj', function(obj) {
-        objects.push(obj);
 
-    }, onProgress, onError);*/
+    // LOAD
+    objects = new Array(models.length)
 
     const loader2 = new GLTFLoader(manager);
-    objectsToLoad.forEach(object => {
-        loader2.load(`${object}`, function(gltf) {
-            gltf.scene.name = `${object}`
-            objects.push(gltf.scene)
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        loader2.load(`${modelsFolder}/${model.file}`, function(gltf) {
+            gltf.scene.name = `${model.name}`
+
+            // Cant use objects.push as they arrange models in "first downloaded" order => no for each loop
+            objects[i] = gltf.scene
 
         }, onProgress, onError);
-    });
+    }
 
 
 
     // Texturing
-    const textureLoader = new THREE.TextureLoader(manager);
-    const texture = textureLoader.load('lucas.jpg');
-
-
-    var newMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
-
 
     function loadModel() {
-
-        /*objects.forEach(object => {
-            console.log(object)
-            object.traverse((o) => {
-                if (o.isMesh) o.material = newMaterial;
-            });
-        });*/
-
-        /*objects[2].traverse(function(child) {
-
-            if (child.isMesh) child.material.map = texture;
-
-        });
-        objects[1].traverse(function(child) {
-
-            if (child.isMesh) child.material.map = texture;
-
-        });*/
-
-        //objects[0].scale.set(0.3, 0.3, 0.3);
-        let count = 0;
-        objects.forEach(object => {
-            object.position.x = count * avatarSpacing;
-            scene.add(object)
-            count++;
-        });
-
-
-        camera.lookAt(objects[currentSelection].position);
+        for (let i = 0; i < objects.length; i++) {
+            const object = objects[i];
+            object.position.x = i * avatarSpacing;
+            scene.add(object);
+        }
 
     }
 
@@ -248,7 +215,6 @@ function init() {
 }
 
 function onWindowResize() {
-
     windowHalfX = window.innerWidth / 2;
     windowHalfY = window.innerHeight / 2;
 
@@ -270,9 +236,6 @@ function animate() {
 }
 
 function render() {
-    //camera.position.x += (mouseX - camera.position.x) * .05;
-    //camera.position.y += (-mouseY - camera.position.y) * .05;
-
     camera.position.y = 1;
     camera.position.z = 3;
 
