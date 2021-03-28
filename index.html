@@ -9,40 +9,33 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="bottom-left" id="abilities"></div>
+    <div id="info">
 
-        <div id="canvas"></div>
-        <div class="bottom-left" id="abilities"></div>
+        <!--<a href="https://tomasmaillo.com" id="text" target="_blank" rel="noopener"></a> - Use left and right side of screen to change selection-->
 
-        <div id="info">
-
-            <!--<a href="https://tomasmaillo.com" id="text" target="_blank" rel="noopener"></a> - Use left and right side of screen to change selection-->
-
-            <h1 id="avatar-name"> </h1>
-            <p id="avatar-slogan"> </p>
+        <h1 id="avatar-name"> </h1>
+        <i><p id="avatar-slogan"> </p></i>
 
 
+        <div>
+            <!-- from https://codepen.io/julesforrest/pen/oNvzEgy -->
+            <div id="loader-arrows">
+                <span style="--delay: 0.1s">↓</span>
+                <span style="--delay: 0.3s">↓</span>
+                <span style="--delay: 0.5s">↓</span>
+                <span style="--delay: 0.7s">↓</span>
 
-            <div>
-                <!-- from https://codepen.io/julesforrest/pen/oNvzEgy -->
-                <div id="loader-arrows">
-                    <span style="--delay: 0.1s">↓</span>
-                    <span style="--delay: 0.3s">↓</span>
-                    <span style="--delay: 0.5s">↓</span>
-                    <span style="--delay: 0.7s">↓</span>
-
-                </div>
-
-                <div id="loader-text">
-                    <p style="display: block;">loading <span id="loading-percent"></span></p>
-                </div>
             </div>
 
+            <div id="loader-text">
+                <p style="display: block;">loading <span id="loading-percent"></span></p>
+            </div>
         </div>
-
     </div>
-
-
+    <div class="container">
+        <div id="canvas"></div>
+    </div>
 
     <script type="module" src="script.js"></script>
 

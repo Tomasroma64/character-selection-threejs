@@ -12,7 +12,7 @@ import models from "./models.js";
 
 let objects = [];
 let currentSelection = 0;
-let avatarSpacing = 2;
+const avatarSpacing = 2;
 
 let finishedLoading = false;
 
@@ -20,6 +20,7 @@ let finishedLoading = false;
 
 init();
 animate();
+
 
 
 function init() {
@@ -57,6 +58,11 @@ function init() {
         }
     }
 
+    function zoom(event) {
+        camera.position.z += event.deltaY * 0.001;
+    }
+    document.addEventListener('mousewheel', zoom, false);
+
 
 
     // scene
@@ -66,9 +72,20 @@ function init() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
+    // TODO: custom light for models
     const pointLight = new THREE.PointLight(0xffffff, 5);
     camera.add(pointLight);
     scene.add(camera);
+
+
+    let rotCount = 0;
+
+    function rotation() {
+        objects.forEach(object => {
+            object.rotation.set(0, rotCount, 0);
+        });
+        rotCount += 0.002;
+    }
 
 
 
@@ -78,16 +95,7 @@ function init() {
 
         finishedLoading = true
 
-        // Rotation
-        let rotCount = 0
-        window.setInterval(() => {
-            objects.forEach(object => {
-                object.rotation.set(0, rotCount, 0);
-            });
-            rotCount += 0.002;
-        }, 1);
-
-
+        window.setInterval(rotation, 1);
         window.setInterval(animateCamera, 20)
 
     }
@@ -108,7 +116,7 @@ function init() {
 
             if (direction != 0) {
                 animationOngoing = true;
-                cameraOffset = new THREE.Vector3(camera.position.x + direction * avatarSpacing, 0, 0);
+                cameraOffset = new THREE.Vector3(camera.position.x + direction * avatarSpacing, 0, camera.position.z);
                 animationCurrentFrame = 0;
             }
 
@@ -116,8 +124,9 @@ function init() {
 
             document.getElementById("avatar-name").innerHTML = models[currentSelection].name;
             document.getElementById("avatar-slogan").innerHTML = models[currentSelection].description;
+            document.getElementById("abilities").innerHTML = ''
             models[currentSelection].abilities.forEach(abilitie => {
-                document.getElementById("abilities").innerHTML += `<p>${abilitie.name}</p>`
+                document.getElementById("abilities").innerHTML += `<p>${abilitie.name} ${abilitie.power}</p>`
             });
 
         }
@@ -158,6 +167,9 @@ function init() {
         ready();
         loadModel();
         camera.lookAt(objects[currentSelection].position);
+
+
+        camera.position.z = 3;
     };
 
     manager.onError = function(url) {
@@ -232,13 +244,8 @@ function onWindowResize() {
 function animate() {
     requestAnimationFrame(animate);
     render();
-
 }
 
 function render() {
-    camera.position.y = 1;
-    camera.position.z = 3;
-
     renderer.render(scene, camera);
-
 }
